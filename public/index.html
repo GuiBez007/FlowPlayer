@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reprodutor de Músicas Premium</title>
+  <!-- Google Fonts: Outfit for modern, premium look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient background glow particles -->
+  <div class="bg-glow-wrapper">
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18V5l12-2v13"></path>
+            <circle cx="6" cy="18" r="3"></circle>
+            <circle cx="18" cy="16" r="3"></circle>
+          </svg>
+          <span class="logo-text">FlowPlayer</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Biblioteca</span>
+          <button class="nav-btn active" id="btn-library">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Explorer
+          </button>
+          <button class="nav-btn" id="btn-visualizer-toggle">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-8m0 0V4m0 8h8m-8 0H4"></path><path d="M18 10h4M18 14h4M2 10h4M2 14h4M6 6h4M6 18h4M14 6h4M14 18h4"></path></svg>
+            Visualizador
+          </button>
+        </div>
+
+        <div class="nav-section playlist-section-sidebar">
+          <span class="nav-section-title">Playlists</span>
+          <div class="playlist-sidebar-list-wrapper">
+            <div class="playlist-sidebar-item playlist-create-btn-card" id="btn-create-playlist-card">
+              <div class="playlist-sidebar-item-info">
+                <div class="playlist-sidebar-item-name" style="color: var(--accent-hover); font-weight: 600;">Criar Playlist +</div>
+              </div>
+            </div>
+            <div class="playlist-sidebar-list" id="playlist-sidebar-list">
+              <!-- Playlist items go here -->
+            </div>
+            
+            <!-- Import/Export buttons -->
+            <div class="playlist-actions-row">
+              <button class="playlist-action-btn" id="btn-import-playlists" title="Importar playlists (.json)">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="14 10 12 12 10 10"></polyline>
+                  <line x1="12" y1="12" x2="12" y2="3"></line>
+                </svg>
+                Importar
+              </button>
+              <button class="playlist-action-btn" id="btn-export-playlists" title="Exportar playlists (.json)">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="10 7 12 5 14 7"></polyline>
+                  <line x1="12" y1="5" x2="12" y2="17"></line>
+                </svg>
+                Exportar
+              </button>
+              <input type="file" id="playlist-import-input" accept=".json" style="display: none;">
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Sidebar now playing card removed (moved to visualizer canvas) -->
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="main-header">
+        <div class="header-left">
+          <!-- Navigation buttons -->
+          <div class="nav-arrows">
+            <button class="nav-arrow-btn" id="btn-back" title="Voltar pasta (Backspace)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Breadcrumbs explorer-style -->
+          <div class="breadcrumbs" id="breadcrumbs">
+            <span class="breadcrumb-item" data-path="">Home</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Search input -->
+          <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="search-input" placeholder="Buscar na pasta atual...">
+            <button class="clear-search-btn" id="btn-clear-search" style="display: none;">&times;</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dynamic Views Wrapper -->
+      <div class="view-container">
+        
+        <!-- Explorer View -->
+        <section class="view-panel active" id="view-explorer">
+          <div class="view-header-title">
+            <h1 id="folder-name-title">Minhas Músicas</h1>
+            <div class="view-controls">
+              <span class="item-count-badge" id="item-count">0 itens</span>
+              <div class="layout-toggle">
+                <button class="layout-btn active" id="layout-grid" title="Visualização em Grid">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                </button>
+                <button class="layout-btn" id="layout-list" title="Visualização em Lista">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                </button>
+                <button class="btn-toggle-thumbs" id="btn-toggle-thumbs" title="Ativar/Desativar carregamento de miniaturas (para HDs lentos)">capas</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Explorer Items Container -->
+          <div class="explorer-grid" id="explorer-container">
+            <!-- Dynamic elements will be inserted here: folders and music files -->
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <p>Carregando arquivos...</p>
+            </div>
+          </div>
+          
+          <!-- Floating Map Directory Button -->
+          <button id="btn-map-dir" class="btn-map-dir-floating" title="Mapear Pasta de Músicas no PC">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>Mapear Pasta</span>
+          </button>
+        </section>
+
+        <!-- Visualizer & Video View -->
+        <section class="view-panel" id="view-visualizer">
+          <div class="visualizer-container">
+            <div class="visualizer-canvas-wrapper">
+              <canvas id="visualizer-canvas"></canvas>
+
+              <!-- Now playing card wrapper -->
+              <div class="canvas-card-wrapper" id="canvas-card-wrapper">
+                <button class="playlist-toggle-btn" id="btn-canvas-playlist" title="Ver fila de reprodução">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                  </svg>
+                  <span>Exibir lista de reprodução</span>
+                </button>
+                
+                <div class="now-playing-canvas-card" id="canvas-card">
+                  <div class="playlist-item-thumb-wrapper">
+                    <img class="playlist-item-thumb" id="canvas-card-thumb" src="" alt="Thumbnail">
+                    <div class="playlist-item-badge-num active-play-badge" id="canvas-card-badge">
+                      <div class="playing-mini-bar"></div>
+                      <div class="playing-mini-bar"></div>
+                      <div class="playing-mini-bar"></div>
+                    </div>
+                    <button class="playlist-thumb-btn add-btn" id="btn-card-add" title="Adicionar à Playlist">+</button>
+                    <button class="playlist-thumb-btn remove-btn" id="btn-card-remove" title="Remover da Playlist">-</button>
+                  </div>
+                  <div class="card-info">
+                    <div class="card-title" id="canvas-song-title">Nenhuma música</div>
+                    <div class="card-folder" id="canvas-song-folder">Selecione uma faixa</div>
+                  </div>
+                  <div class="playlist-item-actions" id="canvas-card-actions">
+                    <button class="reorder-btn up-btn" id="btn-card-up" title="Mover para Cima">▲</button>
+                    <button class="reorder-btn down-btn" id="btn-card-down" title="Mover para Baixo">▼</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Playlist Drawer -->
+              <div class="playlist-drawer" id="playlist-drawer">
+                <div class="playlist-drawer-header">
+                  <h3 id="playlist-drawer-title">Fila de Reprodução</h3>
+                </div>
+                <div class="playlist-drawer-list" id="playlist-drawer-list">
+                  <!-- Playlist items will be generated here -->
+                </div>
+              </div>
+            </div>
+            
+            <div class="visualizer-settings">
+              <div class="setting-group">
+                <button class="btn-theme-color-cycle" id="btn-theme-color-cycle" title="Mudar Cor de Destaque">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 6px;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"></path>
+                  </svg>
+                  <span>Cor: Roxo</span>
+                </button>
+              </div>
+              <div class="setting-group">
+                <label for="visualizer-theme">Estilo de Ondas</label>
+                <select id="visualizer-theme">
+                  <option value="bars">Barras Reativas</option>
+                  <option value="wave">Onda Senoidal Suave</option>
+                  <option value="circle">Círculo Pulsante</option>
+                  <option value="retro">Grade Neon Retro</option>
+                </select>
+              </div>
+              <div class="setting-group">
+                <label for="visualizer-sensitivity">Sensibilidade</label>
+                <input type="range" id="visualizer-sensitivity" min="1" max="5" value="3" step="0.5">
+              </div>
+              <div class="setting-group" style="margin-left: auto; gap: 12px;">
+                <button class="btn-music-notes" id="btn-music-notes" title="Anotações da Música">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 6px;">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                  <span>Anotações</span>
+                </button>
+                <button class="btn-music-lyrics" id="btn-music-lyrics" title="Letra da Música">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 6px;">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                  </svg>
+                  <span>Letra</span>
+                </button>
+                <button class="btn-video-show" id="btn-video-toggle" title="Mostrar/Esconder Tela de Vídeo">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 6px;">
+                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                    <line x1="7" y1="2" x2="7" y2="22"></line>
+                    <line x1="17" y1="2" x2="17" y2="22"></line>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                  </svg>
+                  <span>Exibir Vídeo</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bottom Player Controller -->
+  <footer class="player-bar">
+    <!-- Left: Track Details -->
+    <div class="player-track-details">
+      <div class="track-thumbnail" id="player-track-thumb">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18V5l12-2v13"></path>
+          <circle cx="6" cy="18" r="3"></circle>
+          <circle cx="18" cy="16" r="3"></circle>
+        </svg>
+      </div>
+      <div class="track-metadata">
+        <div class="track-title" id="player-song-title">Nenhuma música tocando</div>
+        <div class="track-artist" id="player-song-artist">Mapeie ou selecione do Explorer</div>
+      </div>
+    </div>
+
+    <!-- Center: Playback Controls & Progress Bar -->
+    <div class="player-controls-container">
+      <div class="control-buttons">
+        <button class="player-btn" id="btn-shuffle" title="Ordem Aleatória (Ctrl + Shift + Seta Esquerda)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+        </button>
+        <button class="player-btn" id="btn-prev" title="Anterior (Ctrl + Seta Esquerda)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+        </button>
+        <button class="player-btn" id="btn-seek-back" title="Voltar 5 segundos (Seta Esquerda)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <polyline points="3 3 3 8 8 8"></polyline>
+            <text x="12" y="15.5" font-size="8" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">5</text>
+          </svg>
+        </button>
+        <button class="player-btn play-pause-btn" id="btn-play-pause" title="Reproduzir / Pausar (Espaço)">
+          <svg id="play-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <svg id="pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display: none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+        </button>
+        <button class="player-btn" id="btn-seek-forward" title="Avançar 5 segundos (Seta Direita)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+            <polyline points="21 3 21 8 16 8"></polyline>
+            <text x="12" y="15.5" font-size="8" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">5</text>
+          </svg>
+        </button>
+        <button class="player-btn" id="btn-next" title="Próxima (Ctrl + Seta Direita)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+        </button>
+        <button class="player-btn" id="btn-repeat" title="Repetir (Ctrl + Shift + Seta Direita)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+          <span class="repeat-badge" id="repeat-badge">1</span>
+        </button>
+      </div>
+      
+      <!-- Interactive Progress Bar -->
+      <div class="progress-bar-container">
+        <span class="time-display" id="time-elapsed">0:00</span>
+        <div class="progress-track" id="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+          <div class="progress-handle" id="progress-handle"></div>
+        </div>
+        <span class="time-display" id="time-duration">0:00</span>
+      </div>
+    </div>
+
+    <!-- Right: Volume & Display controls -->
+    <div class="player-actions-container">
+      <!-- Volume Controls -->
+      <div class="volume-container">
+        <button class="action-btn" id="btn-save-track-volume" title="Salvar Volume desta Música" style="margin-right: 8px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+          </svg>
+        </button>
+        <button class="action-btn" id="btn-mute" title="Mutar/Desmutar (M)">
+          <svg id="volume-high" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+          <svg id="volume-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+        </button>
+        <div class="volume-track" id="volume-track">
+          <div class="volume-fill" id="volume-fill"></div>
+          <div class="volume-handle" id="volume-handle"></div>
+          <div class="volume-tooltip" id="volume-tooltip">70%</div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Right Side Floating Panel: Video Player (for .mp4 files) -->
+  <div class="floating-video-panel" id="video-panel">
+    <div class="video-panel-header">
+      <span class="video-title">Visualização do Vídeo</span>
+      <div class="video-controls-top">
+        <button class="panel-control-btn" id="btn-minimize-video" title="Minimizar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <button class="panel-control-btn close" id="btn-close-video" title="Fechar Visualização">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+    <div class="video-wrapper">
+      <!-- The actual video tag -->
+      <video id="main-player" crossorigin="anonymous" playsinline></video>
+      <!-- Overlay when no video is loaded or minimized -->
+      <div class="video-placeholder" id="video-placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+          <line x1="7" y1="2" x2="7" y2="22"></line>
+          <line x1="17" y1="2" x2="17" y2="22"></line>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <line x1="2" y1="7" x2="7" y2="7"></line>
+          <line x1="2" y1="17" x2="7" y2="17"></line>
+          <line x1="17" y1="17" x2="22" y2="17"></line>
+          <line x1="17" y1="7" x2="22" y2="7"></line>
+        </svg>
+        <p>Tocando em modo de áudio</p>
+      </div>
+    </div>
+    <!-- Window Resize Handles -->
+    <div class="resize-handle resize-right" id="video-resize-handle"></div>
+    <div class="resize-handle resize-left" id="video-resize-handle-left"></div>
+    <div class="panel-progress-bar" id="video-panel-progress"></div>
+  </div>
+
+  <!-- Music Notes Modal -->
+  <div class="music-notes-modal" id="music-notes-modal">
+    <div class="music-notes-content">
+      <div class="music-notes-header">
+        <h3 id="notes-modal-title">Anotações da Música</h3>
+        <button class="btn-close-notes" id="btn-close-notes">&times;</button>
+      </div>
+      <div class="music-notes-body">
+        <textarea id="notes-textarea" placeholder="Escreva aqui suas anotações sobre esta música..."></textarea>
+      </div>
+      <div class="music-notes-footer">
+        <span class="save-status" id="notes-save-status">Não modificado</span>
+        <button class="btn-notes-save" id="btn-save-notes">Salvar Anotações</button>
+      </div>
+      <div class="panel-progress-bar" id="notes-panel-progress"></div>
+    </div>
+  </div>
+
+  <!-- Music Lyrics Modal -->
+  <div class="music-notes-modal" id="music-lyrics-modal">
+    <div class="music-lyrics-content">
+      <div class="music-notes-header">
+        <h3 id="lyrics-modal-title">Letra da Música</h3>
+        <button class="btn-close-notes" id="btn-close-lyrics">&times;</button>
+      </div>
+      <div class="music-lyrics-body">
+        <div class="lyrics-single-container">
+          <div class="lyrics-header-row">
+            <label class="panel-label">Letra da Música</label>
+            <div class="zoom-control">
+              <span>Zoom:</span>
+              <input type="range" id="lyrics-zoom-slider" min="14" max="42" value="20" title="Arraste para dar zoom">
+              <span id="zoom-value-display">20px</span>
+              <button id="btn-lyrics-bold" class="lyrics-control-btn" title="Alternar Negrito" style="margin-left: 8px;">B</button>
+              <button id="btn-lyrics-theme" class="lyrics-control-btn" title="Alternar Modo Claro/Escuro">🌓</button>
+            </div>
+          </div>
+          <div class="lyrics-textarea-wrapper">
+            <textarea id="lyrics-textarea" placeholder="Cole ou digite a letra da música aqui..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="music-notes-footer">
+        <span class="save-status" id="lyrics-save-status">Não modificado</span>
+        <button class="btn-notes-save" id="btn-save-lyrics" style="background: #e67e22;">Salvar Letra</button>
+      </div>
+      <div class="panel-progress-bar" id="lyrics-panel-progress" style="background: linear-gradient(90deg, #e67e22 0%, #f39c12 100%); box-shadow: 0 0 8px rgba(230, 126, 34, 0.5);"></div>
+    </div>
+  </div>
+  
+  <!-- Map Directory Modal -->
+  <div class="music-notes-modal" id="map-directory-modal">
+    <div class="music-lyrics-content" style="max-width: 500px; height: auto;">
+      <div class="music-notes-header">
+        <h3>Mapear Pasta Local</h3>
+        <button class="btn-close-notes" id="btn-close-map-dir">&times;</button>
+      </div>
+      <div class="music-lyrics-body" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; text-align: left; margin-bottom: 0;">
+          Selecione a pasta que contem as músicas do seu computador
+        </p>
+        <p style="font-size: 11px; color: var(--text-muted); text-align: left; opacity: 0.7; margin-top: -8px; margin-bottom: 4px;">
+          ou adicione pelo caminho absoluto abaixo:
+        </p>
+        <div style="display: flex; gap: 8px; align-items: center; width: 100%;">
+          <input type="text" id="input-map-dir" placeholder="C:/Caminho/Para/Sua/Pasta/De/Musicas" style="flex: 1; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; outline: none; font-size: 13px; font-family: inherit; height: 42px; box-sizing: border-box;">
+          <button class="btn-notes-save" id="btn-browse-local-dir" style="background: rgba(255,255,255,0.08); margin: 0; padding: 0 16px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: bold; white-space: nowrap; height: 42px; color: #fff; cursor: pointer; box-sizing: border-box;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Procurar...
+          </button>
+        </div>
+        <div id="map-dir-error" style="color: #ff3333; font-size: 12px; display: none;"></div>
+      </div>
+      <div class="music-notes-footer" style="padding-top: 0; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+          <span class="save-status" id="map-dir-status" style="display: none;">Mapeando...</span>
+          <span id="map-dir-warning" style="color: #ff3333; font-size: 11px; display: none; font-weight: 500;">(pode levar alguns segundos até aparecer)</span>
+        </div>
+        <button class="btn-notes-save" id="btn-submit-map-dir" style="background: var(--accent-color); margin-left: auto;">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ghost text title overlay placed globally at body root level -->
+  <div class="ghost-title-overlay" id="ghost-title-overlay">
+    <h1 id="ghost-title-text"></h1>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
