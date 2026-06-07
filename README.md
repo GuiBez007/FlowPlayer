@@ -1,4 +1,4 @@
-# FlowPlayer - Reprodutor de Músicas Premium 🎵
+# FlowPlayer - Reprodutor de Músicas 🎵
 
 FlowPlayer é um reprodutor de músicas moderno, responsivo e rico visualmente, construído sobre Node.js + Express (backend) e HTML5, CSS3 e Javascript Vanilla (frontend). Ele é projetado especificamente para navegar em coleções locais organizadas em pastas dentro de `/data`, funcionando como um Windows Explorer dedicado para as suas faixas.
 
